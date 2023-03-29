@@ -165,8 +165,60 @@ def dbscan_param_min_sample(save=False):
         print("Saved to:", path)
 
 
+def kmeans(save=False):
+    plt.figure(figsize=(9 * 2 + 3, 13))
+    plt.subplots_adjust(
+        left=0.02, right=0.98, bottom=0.001, top=0.92, wspace=0.05, hspace=0.01
+    )
+
+    n_clusters_values = [1 + i for i in range(1, 11)]
+    titles = [r"$n\_cluster=%d$" % _n_clusters for _n_clusters in n_clusters_values]
+    params = [_n_clusters for _n_clusters in n_clusters_values]
+
+    _plt_num = 1
+    for _ds_idx, (_x, _) in enumerate(dataset):
+        for _param_idx, _n_cluster in enumerate(params):
+            plt.subplot(len(dataset), len(params), _plt_num)
+
+            t0 = time.time()
+            _dbscan_obj = KMeans(n_clusters=_n_cluster)
+            _dbscan_obj.fit(x=_x)
+            t1 = time.time()
+
+            _t_predict = _dbscan_obj.get_labels()
+
+            _t_colors = utils.get_colors_by_n_cluster(n_cluster=int(max(_t_predict) + 1))
+            plt.scatter(_x[:, 0], _x[:, 1], s=10, color=_t_colors[_t_predict])
+
+            if _ds_idx == 0:
+                plt.title(titles[_param_idx], size=18)
+            # plt.xlim(-2.5, 2.5)
+            # plt.ylim(-2.5, 2.5)
+            plt.xticks(())
+            plt.yticks(())
+            plt.text(
+                0.99,
+                0.01,
+                ("%.2fs" % (t1 - t0)).lstrip("0"),
+                transform=plt.gca().transAxes,
+                size=15,
+                horizontalalignment="right",
+            )
+
+            _plt_num += 1
+
+    plt.suptitle(r"KMeans", size=20)
+    if save is False:
+        plt.show()
+    else:
+        path = "plots/kmeans.png"
+        plt.savefig(path, dpi=200)
+        print("Saved to:", path)
+
+
 if "__main__" == __name__:
     pass
     dbscan_best(True)
     dbscan_param_eps(True)
     dbscan_param_min_sample(True)
+    kmeans(True)
