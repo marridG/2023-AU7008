@@ -6,6 +6,7 @@ reference:
 from itertools import cycle, islice
 import numpy as np
 from sklearn import datasets
+from matplotlib import pyplot as plt
 
 np.random.seed(0)
 
@@ -86,3 +87,44 @@ def get_colors_by_n_cluster(n_cluster: int) -> np.ndarray:
     # add black color for outliers (if any)
     res = np.append(res, ["#000000"])
     return res
+
+
+def illustrate_datasets(save=False):
+    dataset = get_dataset_list()
+    titles = ["Noisy Circles", "Noisy Moons", "Blobs", "No Structure", "Anisotropicly", "Varied Blobs"]
+
+    plt.figure(figsize=(9, 6))
+    plt.subplots_adjust(
+        left=0.02, right=0.98, bottom=0.05, top=0.92, wspace=0.05, hspace=0.13
+    )
+
+    _plt_num = 1
+    for _ds_idx, (_x, _gt) in enumerate(dataset):
+        plt.subplot(2, 3, _plt_num)
+
+        if _gt is None:
+            _gt = np.full(len(_x), -1, dtype=int)
+        _t_colors = get_colors_by_n_cluster(n_cluster=int(max(_gt) + 1))
+        plt.scatter(_x[:, 0], _x[:, 1], s=10, color=_t_colors[_gt])
+
+        # if _ds_idx == 0:
+        #     plt.title(titles[_param_idx], size=18)
+        # plt.xlim(-2.5, 2.5)
+        # plt.ylim(-2.5, 2.5)
+        plt.xlabel("%s" % titles[_ds_idx], size=12)
+        plt.xticks(())
+        plt.yticks(())
+
+        _plt_num += 1
+
+    plt.suptitle(r"Datasets", size=18)
+    if save is False:
+        plt.show()
+    else:
+        path = "plots/dataset.png"
+        plt.savefig(path, dpi=200)
+        print("Saved to:", path)
+
+
+if "__main__" == __name__:
+    illustrate_datasets(True)
